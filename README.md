@@ -11,6 +11,18 @@ A react-native module that can listen on orientation changing of device, get cur
 
  ### ChangeLog
 
+v1.1.1
+ 1. fix show "supported event type for deviceOrientationDidChange..." error in debug
+ 2. fix getAutoRotateState() code error
+
+
+v1.1.0 **BREAK CHANGE**  
+ 1. split ```addOrientationListener(function(orientation, deviceOrientation))``` to ```addOrientationListener(function(orientation))``` and ```addDeviceOrientationListener(function(deviceOrientation))```
+ 2. make sure when lockToXXX and unlockAllOrientations resend UI orientation event
+ 3. remove setTimout from orientation listener
+ 4. add getAutoRotateState() for android
+ 5. add TypeScript define file
+
 v1.0.22  
  1. add getAutoRotateState() (android only)
 
@@ -166,11 +178,22 @@ import Orientation from 'react-native-orientation-locker';
 
 ## Events
 
-- `addOrientationListener(function(orientation,deviceOrientation))`
+- `addOrientationListener(function(orientation))`
 
-orientation can return either `PORTRAIT` `LANDSCAPE-LEFT` `LANDSCAPE-RIGHT` `PORTRAIT-UPSIDEDOWN` `UNKNOWN`
+When UI orientation changed, callback function will be called.
+But if lockToXXX is called , callback function will be not called untill unlockAllOrientations.
+It can return either `PORTRAIT` `LANDSCAPE-LEFT` `LANDSCAPE-RIGHT` `PORTRAIT-UPSIDEDOWN` `UNKNOWN`
+When lockToXXX/unlockAllOrientations, it will force resend UI orientation changed event.
 
-- `removeOrientationListener(function(orientation,deviceOrientation))`
+- `removeOrientationListener(function(orientation))`
+
+- `addDeviceOrientationListener(function(deviceOrientation))`
+
+When device orientation changed, callback function will be called.
+When lockToXXX is called, callback function also can be called.
+It can return either `PORTRAIT` `LANDSCAPE-LEFT` `LANDSCAPE-RIGHT` `PORTRAIT-UPSIDEDOWN` `UNKNOWN`
+
+- `removeDeviceOrientationListener(function(deviceOrientation))`
 
 
 ## Functions
