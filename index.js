@@ -10,7 +10,7 @@
 import React, { Component } from "react";
 
 const OrientationNative = require("react-native").NativeModules.Orientation;
-const { NativeEventEmitter } = require("react-native");
+const { NativeEventEmitter, Platform } = require("react-native");
 const LocalEventEmitter = new NativeEventEmitter(OrientationNative);
 
 var listeners = {};
@@ -72,12 +72,31 @@ export default class Orientation {
     listeners[key] = LocalEventEmitter.addListener(
       "orientationDidChange",
       body => {
-        cb(body.orientation, body.deviceOrientation);
+        cb(body.orientation);
       }
     );
   };
 
   static removeOrientationListener = cb => {
+    var key = getKey(cb);
+    if (!listeners[key]) {
+      return;
+    }
+    listeners[key].remove();
+    listeners[key] = null;
+  };
+
+  static addDeviceOrientationListener = cb => {
+    var key = getKey(cb);
+    listeners[key] = LocalEventEmitter.addListener(
+      "deviceOrientationDidChange",
+      body => {
+        cb(body.deviceOrientation);
+      }
+    );
+  };
+
+  static removeDeviceOrientationListener = cb => {
     var key = getKey(cb);
     if (!listeners[key]) {
       return;
@@ -96,7 +115,7 @@ export default class Orientation {
         cb(state);
       });
     } else {
-      cb(TRUE); // iOS not implement
+      cb(true); // iOS not implement
     }
   };
 }
