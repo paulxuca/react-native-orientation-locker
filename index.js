@@ -18,6 +18,8 @@ var listeners = {};
 var id = 0;
 var META = "__listener_id";
 
+var locked = false;
+
 function getKey(listener) {
   if (!listener.hasOwnProperty(META)) {
     if (!Object.isExtensible(listener)) {
@@ -43,27 +45,37 @@ export default class Orientation {
     });
   };
 
+  static isLocked = () => {
+    return locked;
+  };
+
   static lockToPortrait = () => {
+    locked = true;
     OrientationNative.lockToPortrait();
   };
 
   static lockToPortraitUpsideDown = () => {
+    locked = true;
     OrientationNative.lockToPortraitUpsideDown();
   };
 
   static lockToLandscape = () => {
+    locked = true;
     OrientationNative.lockToLandscape();
   };
 
   static lockToLandscapeRight = () => {
+    locked = true;
     OrientationNative.lockToLandscapeRight();
   };
 
   static lockToLandscapeLeft = () => {
+    locked = true;
     OrientationNative.lockToLandscapeLeft();
   };
 
   static unlockAllOrientations = () => {
+    locked = false;
     OrientationNative.unlockAllOrientations();
   };
 
@@ -103,6 +115,32 @@ export default class Orientation {
     }
     listeners[key].remove();
     listeners[key] = null;
+  };
+
+  static addLockListener = cb => {
+    var key = getKey(cb);
+    listeners[key] = LocalEventEmitter.addListener("lockDidChange", body => {
+      cb(body.orientation);
+    });
+  };
+
+  static removeLockListener = cb => {
+    var key = getKey(cb);
+    if (!listeners[key]) {
+      return;
+    }
+    listeners[key].remove();
+    listeners[key] = null;
+  };
+
+  static removeAllListeners = () => {
+    for (var key in listeners) {
+      if (!listeners[key]) {
+        continue;
+      }
+      listeners[key].remove();
+      listeners[key] = null;
+    }
   };
 
   static getInitialOrientation = () => {

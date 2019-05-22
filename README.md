@@ -11,6 +11,23 @@ A react-native module that can listen on orientation changing of device, get cur
 
  ### ChangeLog
 
+v1.1.6
+1. catch unknown device orientation value
+2. when calling unlockAllOrientations(), forcibly unlock whether lock or not
+
+v1.1.5
+1. add Orientation.isLocked() and Orientation.removeAllListeners()
+
+v1.1.4
+1. Fix typescript declarations
+
+v1.1.3
+1. add addLockListener/removeLockListener
+2. improve android orientation changed event sending condition
+
+v1.1.2
+ 1. improve android orientation changed event timing
+
 v1.1.1
  1. fix show "supported event type for deviceOrientationDidChange..." error in debug
  2. fix getAutoRotateState() code error
@@ -30,34 +47,15 @@ v1.0.21
 1. add getDeviceOrientation()
 2. orientationDidChange return DeviceOrientation
 
-v1.0.20
-abandon
-
-v1.0.19
-1. change license to MIT
-
-v1.0.18
-1. update build.gradle for RN 0.57
-2. format some codes and readme
-
-v1.0.17
-1. fix podspec
-2. fix "Calling UI code from background thread" error
-
-v1.0.16
-1. restore s.dependency 'React' to podspec
-
-v1.0.15
-1. remove s.dependency 'React' from podspec
-
-v1.0.14
-1. remove "sending orientationDidChange with no listener" warning
-
-v1.0.13
-1. fix android lockToLandscapeXXX return error value
-2. fix after lockToXXX still can get changed orientation
 
 [[more]](https://github.com/wonday/react-native-orientation-locker/releases)
+
+### Notice
+
+RN 0.58 + Android target SDK 27 maybe cause 
+```Issue: java.lang.IllegalStateException: Only fullscreen activities can request orientation``` problem, 
+see [[#55]](https://github.com/wonday/react-native-orientation-locker/issues/55) for a solution.
+
 
 ### Installation
 #### Using npm
@@ -93,6 +91,20 @@ Add the following to your project's `AppDelegate.m`:
 ```
 
 #### Android
+
+Add following to android/app/src/main/AndroidManifest.xml
+
+```diff
+      <activity
+        ....
++       android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+        android:windowSoftInputMode="adjustResize">
+
+          ....
+
+      </activity>
+
+```
 
 Implement onConfigurationChanged method (in `MainActivity.java`)
 
@@ -195,6 +207,15 @@ It can return either `PORTRAIT` `LANDSCAPE-LEFT` `LANDSCAPE-RIGHT` `PORTRAIT-UPS
 
 - `removeDeviceOrientationListener(function(deviceOrientation))`
 
+- `addLockListener(function(orientation))`
+
+When call lockToXXX/unlockAllOrientations, callback function will be called.
+It can return either `PORTRAIT` `LANDSCAPE-LEFT` `LANDSCAPE-RIGHT` `UNKNOWN`
+`UNKNOWN` means not be locked.
+
+- `removeLockListener(function(orientation))`
+
+- `removeAllListeners()`
 
 ## Functions
 
@@ -206,6 +227,7 @@ It can return either `PORTRAIT` `LANDSCAPE-LEFT` `LANDSCAPE-RIGHT` `PORTRAIT-UPS
 - `getOrientation(function(orientation))`
 - `getDeviceOrientation(function(deviceOrientation))`
 - `getAutoRotateState(function(state))` (android only)
+- `isLocked()` (lock status by this library)
 
 orientation can return one of:
 
